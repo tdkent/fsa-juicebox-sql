@@ -1,4 +1,4 @@
-const { client, getAllUsers } = require("./index");
+const { client, getAllUsers, createUser } = require("./index");
 
 const dropTables = async () => {
   try {
@@ -28,13 +28,34 @@ const createTables = async () => {
   }
 };
 
+const createInitialUsers = async () => {
+  try {
+    console.log("Creating initital users...");
+    const sibelius = await createUser({
+      username: "jean",
+      password: "sibelius1865",
+    });
+    const beethoven = await createUser({
+      username: "ludwig",
+      password: "beethoven1770",
+    });
+    const bartok = await createUser({
+      username: "bela",
+      password: "bartok1881",
+    });
+    console.log("Finished creating new users.");
+  } catch (error) {
+    console.error("There was an error while creating users.");
+  }
+};
+
 const rebuildDB = async () => {
   try {
     client.connect();
     await dropTables();
     await createTables();
+    await createInitialUsers();
   } catch (error) {
-    console.error("There was an error");
     throw error;
   }
 };
