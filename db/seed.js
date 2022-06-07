@@ -119,30 +119,6 @@ const createInitialPosts = async () => {
   }
 };
 
-// const createInitialTags = async() => {
-//   try {
-//     console.log("Attempting to create some tags...");
-
-//     const [happy, sad, inspo, catman] = await createTags([
-//       '#happy',
-//       '#sad',
-//       '#inspirational',
-//       '#catman'
-//     ]);
-
-//     const [postOne, postTwo, postThree] = await getAllPosts();
-
-//     await addTagsToPost(postOne.id, [happy, inspo]);
-//     await addTagsToPost(postTwo.id, [sad, inspo]);
-//     await addTagsToPost(postThree.id, [happy, catman, inspo]);
-
-//     console.log("Finished creating tags!")
-//   }
-//   catch (error) {
-//     throw error;
-//   }
-// }
-
 const rebuildDB = async () => {
   try {
     client.connect();
@@ -150,7 +126,6 @@ const rebuildDB = async () => {
     await createTables();
     await createInitialUsers();
     await createInitialPosts();
-    // await createInitialTags();
   } catch (error) {
     throw error;
   }
