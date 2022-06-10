@@ -9,6 +9,23 @@ const getAllUsers = async () => {
   return rows;
 };
 
+const getUsersByUsername = async (username) => {
+  try {
+    const {
+      rows: [user],
+    } = await client.query(
+      `
+      SELECT * FROM users
+      WHERE username = $1;
+    `,
+      [username]
+    );
+    return user;
+  } catch (error) {
+    throw error;
+  }
+};
+
 async function getAllPosts() {
   try {
     const { rows: postIds } = await client.query(`
@@ -32,11 +49,10 @@ const getAllTags = async () => {
       SELECT * FROM tags;
     `);
     return rows;
-  }
-  catch (error) {
+  } catch (error) {
     throw error;
   }
-}
+};
 
 async function getPostsByUser(userId) {
   try {
@@ -214,21 +230,22 @@ const getPostById = async (postId) => {
 
 async function getPostsByTagName(tagName) {
   try {
-    const { rows: postIds } = await client.query(`
+    const { rows: postIds } = await client.query(
+      `
       SELECT posts.id
       FROM posts
       JOIN post_tags ON posts.id=post_tags."postId"
       JOIN tags ON tags.id=post_tags."tagId"
       WHERE tags.name=$1;
-    `, [tagName]);
+    `,
+      [tagName]
+    );
 
-    return await Promise.all(postIds.map(
-      post => getPostById(post.id)
-    ));
+    return await Promise.all(postIds.map((post) => getPostById(post.id)));
   } catch (error) {
     throw error;
   }
-} 
+}
 
 const updateUser = async (id, fields = {}) => {
   const setString = Object.keys(fields)
@@ -310,5 +327,6 @@ module.exports = {
   createTags,
   addTagsToPost,
   getPostsByTagName,
-  getAllTags
+  getAllTags,
+  getUsersByUsername
 };
