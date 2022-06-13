@@ -111,7 +111,7 @@ async function createPost({
   authorId,
   title,
   content,
-  tags = [], // this is new
+  tags = [],
 }) {
   try {
     const {
@@ -142,6 +142,7 @@ const createTags = async (tagList) => {
   const selectValues = tagList.map((_, index) => `$${index + 1}`).join(", ");
 
   try {
+    // console.log("tagList when new post created: ", tagList);
     const insert = `
       INSERT INTO tags(name)
       VALUES (${insertValues})
@@ -155,7 +156,7 @@ const createTags = async (tagList) => {
     await client.query(insert, tagList);
 
     const { rows } = await client.query(select, tagList);
-
+    // console.log("createTags rows: ", rows);
     return rows;
   } catch (error) {
     throw error;
@@ -179,9 +180,11 @@ const createPostTag = async (postId, tagId) => {
 
 const addTagsToPost = async (postId, tagList) => {
   try {
+    // console.log("addTagsToPost tagList: ", tagList);
     const createPostTagPromises = tagList.map((tag) =>
       createPostTag(postId, tag.id)
     );
+    // console.log("createPostTagPromises: ", createPostTagPromises);
     await Promise.all(createPostTagPromises);
     return await getPostById(postId);
   } catch (error) {
@@ -199,16 +202,21 @@ const getPostById = async (postId) => {
     `,
       [postId]
     );
-    const {
-      rows: [tags],
-    } = await client.query(
-      `
-      SELECT tags.* FROM tags
-      JOIN post_tags ON tags.id=post_tags."tagId"
-      WHERE post_tags."postId"=$1;
-    `,
-      [postId]
-    );
+
+    if(!post) {
+      throw {
+        name: "PostNotFoundError",
+        message: "Could not find a post with that postId"
+      };
+    }
+    
+    const { rows: tags } = await client.query(`
+    SELECT tags.*
+    FROM tags
+    JOIN post_tags ON tags.id=post_tags."tagId"
+    WHERE post_tags."postId"=$1;
+  `, [postId]);
+    // console.log("rows: [tags]: ", { rows: [tags] });
     const {
       rows: [author],
     } = await client.query(
@@ -220,8 +228,10 @@ const getPostById = async (postId) => {
     );
 
     post.tags = tags;
+    //console.log("getPostById post.tags: ", post.tags);
     post.author = author;
     delete post.authorId;
+    //console.log("getPostById return post: ", post);
     return post;
   } catch (error) {
     throw error;
@@ -328,5 +338,6 @@ module.exports = {
   addTagsToPost,
   getPostsByTagName,
   getAllTags,
-  getUsersByUsername
+  getUsersByUsername,
+  getPostById
 };
