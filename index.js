@@ -6,7 +6,7 @@ const morgan = require("morgan");
 const { client } = require("./db");
 const apiRouter = require("./api");
 
-const { PORT = 3000 } = process.env
+const { PORT = 3000 } = process.env;
 
 server.use(morgan("dev"));
 server.use(express.json());
